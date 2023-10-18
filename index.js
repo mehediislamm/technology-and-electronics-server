@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 
 // Technology-and-Electronics
@@ -33,16 +33,62 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
-        const userCollection = client.db("userDB").collection("users");
+        const usersCollection = client.db("userDB").collection("users");
+
+        // post single data endpoint
 
         app.post("/users", async (req, res) => {
             const user = req.body;
             //   console.log(user);
-            const result = await userCollection.insertOne(user);
+            const result = await usersCollection.insertOne(user);
             console.log(result);
             res.send(result);
         });
 
+        // Read single data endpoint
+
+        app.get("/users", async (req, res) => {
+            const result = await usersCollection.find().toArray();
+            res.send(result);
+          });
+
+        //   get single data useing id
+
+        app.get("/users/:id", async (req, res) => {
+            const id = req.params.id;
+            console.log("id", id);
+            const query = {
+              _id: new ObjectId(id),
+            };
+            const result = await usersCollection.findOne(query);
+            console.log(result);
+            res.send(result);
+          });
+
+            // update Single User 
+            app.put("/users/:id", async (req, res) => {
+                const id = req.params.id;
+                const data = req.body;
+                // console.log("id", id, data);
+                const filter = { _id: new ObjectId(id) };
+                const options = { upsert: true };
+                const updatedData = {
+                  $set: {
+                    image:data.image,
+                    name: data.name,
+                    type:data.type,
+                    price:data.price,
+                    description:data.description,
+                    rating:data.rating,
+                  },
+                };
+                const result = await usersCollection.updateOne(
+                  filter,
+                  updatedData,
+                  options
+                );
+                res.send(result);
+              });
 
 
         // Send a ping to confirm a successful connection
