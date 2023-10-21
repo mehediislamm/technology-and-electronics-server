@@ -21,83 +21,154 @@ const uri = "mongodb+srv://Technology-and-Electronics:XHIMfTdOvKjL6hlt@cluster0.
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    }
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
 });
 
 async function run() {
-    try {
-        // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    // await client.connect();
 
-        const usersCollection = client.db("userDB").collection("users");
+    // const usersCollection = client.db("userDB").collection("users");
+    const userCollection = client.db('userDB').collection("productsBrand");
+    const allCollection = client.db('userDB').collection("allCards");
+    const addtoCard = client.db('userDB').collection("addCard");
 
-        // post single data endpoint
+    // post single data endpoint
 
-        app.post("/users", async (req, res) => {
-            const user = req.body;
-            //   console.log(user);
-            const result = await usersCollection.insertOne(user);
-            console.log(result);
-            res.send(result);
-        });
+    app.post("/productsBrand", async (req, res) => {
+      const user = req.body;
+      //   console.log(user);
+      const result = await userCollection.insertOne(user);
+      console.log(result);
+      res.send(result);
+    });
 
-        // Read single data endpoint
+    // add to card
 
-        app.get("/users", async (req, res) => {
-            const result = await usersCollection.find().toArray();
-            res.send(result);
-          });
-
-        //   get single data useing id
-
-        app.get("/users/:id", async (req, res) => {
-            const id = req.params.id;
-            console.log("id", id);
-            const query = {
-              _id: new ObjectId(id),
-            };
-            const result = await usersCollection.findOne(query);
-            console.log(result);
-            res.send(result);
-          });
-
-            // update Single User 
-            app.put("/users/:id", async (req, res) => {
-                const id = req.params.id;
-                const data = req.body;
-                // console.log("id", id, data);
-                const filter = { _id: new ObjectId(id) };
-                const options = { upsert: true };
-                const updatedData = {
-                  $set: {
-                    image:data.image,
-                    name: data.name,
-                    type:data.type,
-                    price:data.price,
-                    description:data.description,
-                    rating:data.rating,
-                  },
-                };
-                const result = await usersCollection.updateOne(
-                  filter,
-                  updatedData,
-                  options
-                );
-                res.send(result);
-              });
+    app.post("/addCard", async (req, res) => {
+      const user = req.body;
+      //   console.log(user);
+      const result = await addtoCard.insertOne(user);
+      console.log(result);
+      res.send(result);
+    });
 
 
-        // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
-    } finally {
-        // Ensures that the client will close when you finish/error
-        // await client.close();
-    }
+    // Read add to card
+
+    // app.get("/addCard/:id", async (req, res) => {
+    //   const result = await addtoCard.find().toArray();
+    //   res.send(result);
+    // });
+
+
+
+    app.get("/addCard", async (req, res) => {
+      const id = req.params.id;
+      console.log("id", id);
+     
+      const result = await addtoCard.find().toArray();
+      console.log(result);
+      res.send(result);
+    });
+ 
+
+ 
+
+
+    // delete single users
+
+
+
+
+
+
+    // Read single data endpoint
+
+    app.get("/allCards", async (req, res) => {
+      const result = await allCollection.find().toArray();
+      res.send(result);
+    });
+
+    // Read single data for productsBrand
+
+    app.get("/productsBrand", async (req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result);
+    });
+
+  
+
+    //   get single data useing id
+
+    app.get("/productsBrand/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log("id", id);
+      const query = {
+        _id: new ObjectId(id),
+      };
+      const result = await userCollection.findOne(query);
+      console.log(result);
+      res.send(result);
+    });
+
+    // single data using id for allCarda
+    app.get("/brand/:brand_name", async (req, res) => {
+      const brandName = req.params.brand_name;
+      console.log('id', brandName);
+      const query = {
+        brand_name: brandName,
+      };
+      const cursor =  userCollection.find(query);
+      const result = await cursor.toArray()
+      console.log(result);
+      res.send(result);
+
+    });
+
+
+  
+
+
+
+    // update Single User 
+    app.put("/productsBrand/:id", async (req, res) => {
+      const id = req.params.id;
+      const data = req.body;
+      console.log("id", id, data);
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedData = {
+        $set: {
+          image: data.image,
+          name: data.name,
+          type: data.type,
+          price: data.price,
+          description: data.description,
+          rating: data.rating,
+        },
+      };
+      const result = await userCollection.updateOne(
+        filter,
+        updatedData,
+        options
+      );
+      res.send(result);
+    });
+
+
+    // Send a ping to confirm a successful connection
+    // await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    // await client.close();
+  }
 }
 run().catch(console.dir);
 
@@ -109,11 +180,11 @@ run().catch(console.dir);
 
 
 app.get("/", (req, res) => {
-    res.send("Crud is running...");
+  res.send("Crud is running...");
 });
 
 
 app.listen(port, () => {
-    console.log(`Simple Crud is Running on port ${port}`);
+  console.log(`Simple Crud is Running on port ${port}`);
 });
 
