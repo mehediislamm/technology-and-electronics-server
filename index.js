@@ -17,6 +17,7 @@ const port = process.env.PORT || 5000;
 
 
 
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.zjauaf8.mongodb.net/?retryWrites=true&w=majority`;
 const uri = "mongodb+srv://Technology-and-Electronics:XHIMfTdOvKjL6hlt@cluster0.zjauaf8.mongodb.net/?retryWrites=true&w=majority";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -59,31 +60,32 @@ async function run() {
     });
 
 
-    // Read add to card
-
-    // app.get("/addCard/:id", async (req, res) => {
-    //   const result = await addtoCard.find().toArray();
-    //   res.send(result);
-    // });
-
-
 
     app.get("/addCard", async (req, res) => {
       const id = req.params.id;
       console.log("id", id);
-     
+
       const result = await addtoCard.find().toArray();
       console.log(result);
       res.send(result);
     });
- 
 
- 
+
+
 
 
     // delete single users
 
-
+    app.delete("/addCard/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log("delete", id);
+      const query = {
+        _id: new ObjectId(id),
+      };
+      const result = await addtoCard.deleteOne(query);
+      console.log(result);
+      res.send(result);
+    });
 
 
 
@@ -102,7 +104,7 @@ async function run() {
       res.send(result);
     });
 
-  
+
 
     //   get single data useing id
 
@@ -124,17 +126,12 @@ async function run() {
       const query = {
         brand_name: brandName,
       };
-      const cursor =  userCollection.find(query);
+      const cursor = userCollection.find(query);
       const result = await cursor.toArray()
       console.log(result);
       res.send(result);
 
     });
-
-
-  
-
-
 
     // update Single User 
     app.put("/productsBrand/:id", async (req, res) => {
